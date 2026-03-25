@@ -13,7 +13,7 @@ ENV LC_ALL pt_BR.UTF-8
 
 # Variáveis de ambiente para o PostgreSQL
 ENV POSTGRES_USER=postgres
-ENV POSTGRES_PASSWORD=qualquer_uma
+ENV POSTGRES_PASSWORD=qualquer_uma # substitua por sua senha
 ENV POSTGRES_DB=BD_PESQUISADOR
 ENV POSTGRES_HOST_AUTH_METHOD=trust
 # Copie o arquivo script de inicialização para o container
