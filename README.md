@@ -16,3 +16,7 @@ As etapas realizadas foram:
 ### Configuração de ambiente:
 
 A tarefa foi desenvolvida no ambiente Ubuntu 24.04, portanto o container Docker está com comandos específicos para esse SO. 
+
+### Busca textual
+
+O módulo de busca textual no banco se encontra no diretório /busca_textual.
