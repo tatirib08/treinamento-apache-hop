@@ -101,7 +101,7 @@
 -- WHERE busca_textual.document @@ to_tsquery('dengue')
 -- ORDER BY relevancia DESC;
 
--- PARTE 7: INDEXAÇÃO E OTIMIZAÇÃO DAS CONSULTAS:
+-- PARTE 7: INDEXAÇÃO:
 -- Por questões de otimização devemos utilizar índices ao fazer a consulta.
 
 -- para facilitar as consultas, vamos adicionar uma coluna nova na tabela producoes: 'document' que vai armazenar
@@ -136,3 +136,34 @@
 -- WHERE document @@ to_tsquery('dengue')
 -- ORDER BY relevancia DESC;
 
+-- PARTE 8: ERROS DE ORTOGRAFIA
+-- às vezes a search_text pode vir com algum erro de ortografia, e a palavra não está exatamente igual ao que aparece no documento. 
+-- então, usamos uma extensão pg_tgrm
+-- serve para encontrar uma palavra que é parecida, mas não exatamente igual: 
+
+-- CREATE EXTENSION pg_trgm;
+
+-- criar uma lista de lexemas únicos:
+
+-- DROP MATERIALIZED VIEW IF EXISTS unique_lexeme;
+
+-- CREATE MATERIALIZED VIEW unique_lexeme AS
+-- SELECT word
+-- FROM ts_stat(
+--  $$SELECT document FROM public.producoes$$
+-- );
+
+-- criando indice para essa consulta:
+-- CREATE INDEX words_idx ON unique_lexeme USING gin(word gin_trgm_ops);
+
+-- fazendo a consulta usando a similaridade:
+SELECT word
+FROM unique_lexeme
+WHERE similarity(word, 'denge') > 0.5
+ORDER BY word <-> 'denge'
+LIMIT 1;
+
+-- exemplo sem usar similaridade
+SELECT producoes_id, nomeartigo
+FROM producoes
+WHERE document @@ to_tsquery('dengue');
