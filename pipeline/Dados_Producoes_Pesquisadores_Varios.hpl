@@ -67,9 +67,9 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <IsAFile>N</IsAFile>
+    <IsAFile>Y</IsAFile>
     <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
-    <IsInFields>N</IsInFields>
+    <IsInFields>Y</IsInFields>
     <XmlField>filename</XmlField>
     <addresultfile>N</addresultfile>
     <doNotFailIfNoFile>Y</doNotFailIfNoFile>
@@ -142,7 +142,7 @@
       <file_required>N</file_required>
       <filemask/>
       <include_subfolders>N</include_subfolders>
-      <name>${PROJECT_HOME}/dataset/1966167015825708.xml</name>
+      <name/>
     </file>
     <hiddenFieldName/>
     <ignorecomments>N</ignorecomments>
@@ -182,16 +182,13 @@
     </partitioning>
     <doNotFailIfNoFile>N</doNotFailIfNoFile>
     <dynamic_include_subfolders>N</dynamic_include_subfolders>
-    <exclude_wildcard_Field/>
     <file>
-      <exclude_filemask/>
       <file_required>N</file_required>
       <filemask>.*\.xml$</filemask>
       <include_subfolders>N</include_subfolders>
       <name>${PROJECT_HOME}/dataset/</name>
     </file>
     <filefield>N</filefield>
-    <filename_Field/>
     <filter>
       <filterfiletype>all_files</filterfiletype>
     </filter>
@@ -199,12 +196,85 @@
     <limit>0</limit>
     <raiseAnExceptionIfNoFile>N</raiseAnExceptionIfNoFile>
     <rownum>N</rownum>
-    <rownum_field/>
-    <wildcard_Field/>
     <attributes/>
     <GUI>
       <xloc>160</xloc>
       <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Insert / update</name>
+    <type>InsertUpdate</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <commit>100</commit>
+    <connection>PostgreSQL</connection>
+    <lookup>
+      <key>
+        <condition>=</condition>
+        <field>issn</field>
+        <name>ISSN</name>
+      </key>
+      <schema>"public"</schema>
+      <table>producoes</table>
+      <value>
+        <name>nomeartigo</name>
+        <rename>TITULO-DO-ARTIGO</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>anoartigo</name>
+        <rename>anoartigo</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>issn</name>
+        <rename>ISSN</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>pesquisadores_id</name>
+        <rename>pesquisadores_id</rename>
+        <update>Y</update>
+      </value>
+    </lookup>
+    <update_bypassed>N</update_bypassed>
+    <attributes/>
+    <GUI>
+      <xloc>960</xloc>
+      <yloc>224</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Merge join</name>
+    <type>MergeJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <join_type>INNER</join_type>
+    <keys_1>
+      <key>lattes_id</key>
+    </keys_1>
+    <keys_2>
+      <key>idcnpq</key>
+    </keys_2>
+    <transform1>Sort rows Pesquisadores</transform1>
+    <transform2>Sort rows Produções</transform2>
+    <attributes/>
+    <GUI>
+      <xloc>800</xloc>
+      <yloc>224</yloc>
     </GUI>
   </transform>
   <transform>
@@ -223,19 +293,16 @@
         <length>-2</length>
         <name>TITULO-DO-ARTIGO</name>
         <precision>-2</precision>
-        <rename/>
       </field>
       <field>
         <length>-2</length>
         <name>ANO-DO-ARTIGO</name>
         <precision>-2</precision>
-        <rename/>
       </field>
       <field>
         <length>-2</length>
         <name>ISSN</name>
         <precision>-2</precision>
-        <rename/>
       </field>
       <field>
         <length>-2</length>
@@ -244,14 +311,7 @@
         <rename>idcnpq</rename>
       </field>
       <meta>
-        <conversion_mask/>
-        <currency_symbol/>
         <date_format_lenient>N</date_format_lenient>
-        <date_format_locale/>
-        <date_format_timezone/>
-        <decimal_symbol/>
-        <encoding/>
-        <grouping_symbol/>
         <length>-2</length>
         <lenient_string_to_number>N</lenient_string_to_number>
         <name>ANO-DO-ARTIGO</name>
@@ -270,6 +330,38 @@
     </GUI>
   </transform>
   <transform>
+    <name>Sort rows Pesquisadores</name>
+    <type>SortRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compress>N</compress>
+    <directory>${java.io.tmpdir}</directory>
+    <fields>
+      <field>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <name>lattes_id</name>
+        <presorted>N</presorted>
+      </field>
+    </fields>
+    <sort_prefix>out</sort_prefix>
+    <sort_size>1000000</sort_size>
+    <unique_rows>N</unique_rows>
+    <attributes/>
+    <GUI>
+      <xloc>320</xloc>
+      <yloc>256</yloc>
+    </GUI>
+  </transform>
+  <transform>
     <name>Sort rows Produções</name>
     <type>SortRows</type>
     <description/>
@@ -281,7 +373,6 @@
       <schema_name/>
     </partitioning>
     <compress>N</compress>
-    <compress_variables/>
     <directory>${java.io.tmpdir}</directory>
     <fields>
       <field>
@@ -293,7 +384,6 @@
         <presorted>N</presorted>
       </field>
     </fields>
-    <free_memory/>
     <sort_prefix>out</sort_prefix>
     <sort_size>1000000</sort_size>
     <unique_rows>N</unique_rows>
@@ -324,116 +414,6 @@ from "public".pesquisadores;</sql>
     <GUI>
       <xloc>144</xloc>
       <yloc>256</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Sort rows Pesquisadores</name>
-    <type>SortRows</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <compress>N</compress>
-    <compress_variables/>
-    <directory>${java.io.tmpdir}</directory>
-    <fields>
-      <field>
-        <ascending>Y</ascending>
-        <case_sensitive>N</case_sensitive>
-        <collator_enabled>N</collator_enabled>
-        <collator_strength>0</collator_strength>
-        <name>lattes_id</name>
-        <presorted>N</presorted>
-      </field>
-    </fields>
-    <free_memory/>
-    <sort_prefix>out</sort_prefix>
-    <sort_size>1000000</sort_size>
-    <unique_rows>N</unique_rows>
-    <attributes/>
-    <GUI>
-      <xloc>320</xloc>
-      <yloc>256</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Merge join</name>
-    <type>MergeJoin</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <join_type>INNER</join_type>
-    <keys_1>
-      <key>lattes_id</key>
-    </keys_1>
-    <keys_2>
-      <key>idcnpq</key>
-    </keys_2>
-    <transform1>Sort rows Pesquisadores</transform1>
-    <transform2>Sort rows Produções</transform2>
-    <attributes/>
-    <GUI>
-      <xloc>800</xloc>
-      <yloc>224</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Insert / update</name>
-    <type>InsertUpdate</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <commit>100</commit>
-    <connection>PostgreSQL</connection>
-    <lookup>
-      <key>
-        <condition>=</condition>
-        <field>issn</field>
-        <name>ISSN</name>
-        <name2/>
-      </key>
-      <schema>"public"</schema>
-      <table>producoes</table>
-      <value>
-        <name>nomeartigo</name>
-        <rename>TITULO-DO-ARTIGO</rename>
-        <update>Y</update>
-      </value>
-      <value>
-        <name>anoartigo</name>
-        <rename>anoartigo</rename>
-        <update>Y</update>
-      </value>
-      <value>
-        <name>issn</name>
-        <rename>ISSN</rename>
-        <update>Y</update>
-      </value>
-      <value>
-        <name>pesquisadores_id</name>
-        <rename>pesquisadores_id</rename>
-        <update>Y</update>
-      </value>
-    </lookup>
-    <update_bypassed>N</update_bypassed>
-    <attributes/>
-    <GUI>
-      <xloc>960</xloc>
-      <yloc>224</yloc>
     </GUI>
   </transform>
   <transform_error_handling>
