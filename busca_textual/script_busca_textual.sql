@@ -19,7 +19,7 @@
 -- é preciso converter campos que não são de string, como o anoartigo, que é um inteiro, usando '::text'. 
 -- A saída desse SQL para cada documento, é um conjunto de lexemas e suas posições no documento.
 
--- SELECT to_tsvector(producoes.nomeartigo ) || to_tsvector(producoes.anoartigo::text) ||
+-- SELECT to_tsvector(producoes.nomeartigo ) || to_tsvector(producoes.anoartigo::TEXT) ||
 -- to_tsvector(producoes.issn) || to_tsvector(pesquisadores.nome) AS document
 -- FROM producoes
 -- INNER JOIN pesquisadores ON producoes.pesquisadores_id=pesquisadores.pesquisadores_id
@@ -56,7 +56,7 @@
 
 -- Vamos reconstruir o documento usando o idioma:
 
--- SELECT TO_TSVECTOR(producoes.idioma::regconfig, producoes.nomeartigo) || to_tsvector(producoes.anoartigo::text) ||
+-- SELECT TO_TSVECTOR(producoes.idioma::regconfig, producoes.nomeartigo) || to_tsvector(producoes.anoartigo::TEXT) ||
 -- to_tsvector(producoes.issn) || to_tsvector(pesquisadores.nome) AS document
 -- FROM producoes
 -- INNER JOIN pesquisadores ON producoes.pesquisadores_id=pesquisadores.pesquisadores_id
@@ -73,7 +73,7 @@
 -- SELECT to_tsvector(producoes.idioma::regconfig, unaccent(producoes.nomeartigo)) ||
 --       to_tsvector(producoes.anoartigo::text) ||
 --       to_tsvector(producoes.issn::text) ||
---       to_tsvector('simple', unaccent(pesquisadores.nome)) AS document
+--      to_tsvector('simple', unaccent(pesquisadores.nome)) AS document
 -- FROM producoes
 -- INNER JOIN pesquisadores 
 --  ON producoes.pesquisadores_id = pesquisadores.pesquisadores_id;
@@ -101,4 +101,38 @@
 -- WHERE busca_textual.document @@ to_tsquery('dengue')
 -- ORDER BY relevancia DESC;
 
+-- PARTE 7: INDEXAÇÃO E OTIMIZAÇÃO DAS CONSULTAS:
+-- Por questões de otimização devemos utilizar índices ao fazer a consulta.
+
+-- para facilitar as consultas, vamos adicionar uma coluna nova na tabela producoes: 'document' que vai armazenar
+-- titulo do artigo, issn, ano do artigo e nome do pesquisador:
+
+-- ALTER TABLE producoes ADD COLUMN document tsvector;
+
+-- UPDATE producoes
+-- SET document =
+--    setweight(to_tsvector(nomeartigo), 'A') ||
+--    setweight(to_tsvector(anoartigo::text), 'C') ||
+--    setweight(to_tsvector(issn::text), 'D') ||
+--    setweight(to_tsvector('simple', (SELECT nome FROM pesquisadores WHERE pesquisadores_id = producoes.pesquisadores_id)), 'B');
+
+-- agora criamos um índice GIN na coluna 'document' para otimizar as consultas
+-- CREATE INDEX idx_fts_producoes ON producoes USING gin(document);
+
+-- usando trigger para rodar automaticamente a atualização de 'document' quando um artigo for inserido ou atualizado
+-- CREATE TRIGGER producoes_fts_update
+-- BEFORE INSERT OR UPDATE ON producoes
+-- FOR EACH ROW EXECUTE FUNCTION
+-- tsvector_update_trigger(
+--    document,
+--    'pg_catalog.portuguese',
+--    nomeartigo, anoartigo, issn
+-- );
+
+-- rodando a consulta do document ja com indice:
+-- SELECT producoes_id, nomeartigo,
+--       ts_rank(document, to_tsquery('dengue')) AS relevancia
+-- FROM producoes
+-- WHERE document @@ to_tsquery('dengue')
+-- ORDER BY relevancia DESC;
 
